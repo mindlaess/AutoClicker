@@ -6,7 +6,8 @@ from PIL import Image, ImageTk
 from pynput.keyboard import *
 from pynput.keyboard import Key, Listener
 from pynput import keyboard
-import pydirectinput
+from time import sleep
+import tkinter as tk
 import sys
 import os
 import pydirectinput
@@ -23,11 +24,12 @@ repeattype = 1
 
 
 class App(customtkinter.CTk):
-    auto = False
-    auto1 = False
 
     WIDTH = 315
-    HEIGHT = 440
+    HEIGHT = 452
+
+    auto1 = False
+    auto = False
 
     global resource
 
@@ -39,56 +41,38 @@ class App(customtkinter.CTk):
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("blue")
 
-    def __init__(self):
-        super().__init__()
+    def start(self):
+        self.mainloop()
 
-        self.title("AutoClicker")
-        self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
-
-        self.p1 = ImageTk.PhotoImage(file=resource("../Assets/icon.ico"))
-        self.wm_iconbitmap()
-        self.iconphoto(False, self.p1)
-
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-
-        self.frame = customtkinter.CTkFrame(master=self)
-        self.frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-
-        self.frame.grid_columnconfigure(0, weight=1)
-        self.frame.grid_columnconfigure(1, weight=1)
-        self.frame.grid_columnconfigure(5, weight=1)
-
-        self.title = customtkinter.CTkLabel(
-            master=self.frame, text="AutoClicker", font=("Roboto Medium", -16)
-        )
-        self.title.grid(row=1, column=1, pady=10)
+    def setupAutoclicker(self):
+        title = customtkinter.CTkLabel(master=self.tab1, text="AutoClicker", font=("Roboto Medium", -16))
+        title.pack(pady=5)
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.start_auto_button = customtkinter.CTkButton(
-            master=self.frame,
+            master=self.tab1,
             text="Start",
             fg_color=("black"),
             font=("Roboto Medium", -16),
             command=self.start_button,
         )
-        self.start_auto_button.place(x=80, y=280)
+        self.start_auto_button.pack(pady=(200,0))
 
         self.stop_auto_button = customtkinter.CTkButton(
-            master=self.frame,
+            master=self.tab1,
             text="Stop",
             fg_color=("black"),
             font=("Roboto Medium", -16),
             state="disabled",
             command=self.stop_button,
         )
-        self.stop_auto_button.place(x=80, y=315)
+        self.stop_auto_button.pack(pady=(10,10))
 
         self.buttonmenu_var = customtkinter.StringVar(value="Left")
 
         self.buttonmenu = customtkinter.CTkComboBox(
-            master=self.frame,
+            master=self.tab1,
             font=("Roboto Medium", -14),
             width=115,
             fg_color="black",
@@ -97,19 +81,19 @@ class App(customtkinter.CTk):
             command=self.buttonmenu_event,
             values=["Left", "Middle", "Right"],
         )
-        self.buttonmenu.place(x=20, y=90)
+        self.buttonmenu.place(x=20, y=70)
 
         self.buttonmenu.bind("<Return>", lambda e: self.custombutton())
 
         self.buttontxt = customtkinter.CTkLabel(
-            master=self.frame, text="Button:", font=("Roboto Medium", -15)
+            master=self.tab1, text="Button:", font=("Roboto Medium", -15)
         )
-        self.buttontxt.place(x=46, y=60)
+        self.buttontxt.place(x=46, y=40)
 
         self.clicktype_var = customtkinter.StringVar(value="Single")
 
         self.clicktypemenu = customtkinter.CTkOptionMenu(
-            master=self.frame,
+            master=self.tab1,
             font=("Roboto Medium", -14),
             width=115,
             fg_color="black",
@@ -118,32 +102,32 @@ class App(customtkinter.CTk):
             command=self.clicktype_event,
             values=["Single", "Double", "Triple", "Hold"],
         )
-        self.clicktypemenu.place(x=160, y=90)
+        self.clicktypemenu.place(x=160, y=70)
 
         self.clicktypetxt = customtkinter.CTkLabel(
-            master=self.frame, text="Click Type:", font=("Roboto Medium", -15)
+            master=self.tab1, text="Click Type:", font=("Roboto Medium", -15)
         )
-        self.clicktypetxt.place(x=180, y=60)
+        self.clicktypetxt.place(x=180, y=40)
 
         self.clickinterval_var = customtkinter.StringVar(
-            master=self.frame, value=str(0.01)
+            master=self.tab1, value=str(0.01)
         )
 
+        self.clickintervaltxt = customtkinter.CTkLabel(
+            master=self.tab1, text="Click interval", font=("Roboto Medium", -14)
+        )
+        self.clickintervaltxt.pack(pady=(10,0))
+
         self.clickinterval = customtkinter.CTkEntry(
-            master=self.frame,
+            master=self.tab1,
             font=("Roboto Medium", -14),
             width=80,
             textvariable=self.clickinterval_var,
         )
-        self.clickinterval.place(x=110, y=380)
-
-        self.clickintervaltxt = customtkinter.CTkLabel(
-            master=self.frame, text="Click interval", font=("Roboto Medium", -14)
-        )
-        self.clickintervaltxt.place(x=108, y=350)
+        self.clickinterval.pack(pady=(5,0))
 
         self.secondstxt = customtkinter.CTkLabel(
-            master=self.frame, text="secs", font=("Roboto Medium", -13), width=10
+            master=self.tab1, text="secs", font=("Roboto Medium", -13), width=10
         )
         self.secondstxt.place(x=195, y=385)
 
@@ -151,7 +135,7 @@ class App(customtkinter.CTk):
         self.repeat_var.set(value=1)
 
         self.repeat = customtkinter.CTkRadioButton(
-            master=self.frame,
+            master=self.tab1,
             text="Repeat",
             value=0,
             variable=self.repeat_var,
@@ -163,7 +147,7 @@ class App(customtkinter.CTk):
         self.repeat.place(x=20, y=140)
 
         self.repeatstopped = customtkinter.CTkRadioButton(
-            master=self.frame,
+            master=self.tab1,
             text="Repeat until stopped",
             value=1,
             variable=self.repeat_var,
@@ -175,7 +159,7 @@ class App(customtkinter.CTk):
         self.repeatstopped.place(x=20, y=170)
 
         self.repeattimes = spinbox.FloatSpinbox(
-            master=self.frame, width=105, height=25, step_size=1
+            master=self.tab1, width=105, height=25, step_size=1
         )
         self.repeattimes.place(x=160, y=135)
 
@@ -184,6 +168,68 @@ class App(customtkinter.CTk):
 
         self.repeattimes.set(1)
         self.repeatstopped.select()
+
+    def setupMoveit(self):
+        self.sliderVar = customtkinter.IntVar(master=self.tab2, value=50)
+        self.slider = customtkinter.CTkSlider(master=self.tab2, from_=0, to=100, variable=self.sliderVar)
+        self.slider.pack(pady=(10,0))
+        customtkinter.CTkLabel(master=self.tab2, textvariable=self.sliderVar).pack()
+
+        self.start_move = customtkinter.CTkButton(
+            master=self.tab2,
+            text="Start",
+            fg_color=("black"),
+            font=("Roboto Medium", -16),
+            command=self.start_move_fn,
+        )
+        self.start_move.pack(pady=(150,0))
+
+        self.stop_move = customtkinter.CTkButton(
+            master=self.tab2,
+            text="Stop",
+            fg_color=("black"),
+            font=("Roboto Medium", -16),
+            state="disabled",
+            command=self.stop_move_fn,
+        )
+        self.stop_move.pack(pady=(10,10))
+
+        # self.lismove = keyboard.Listener(on_press=self.on_press1)
+        # self.lismove.start()
+
+    def start_move_fn(self):
+
+        return
+
+    def stop_move_fn(self):
+        return
+
+    def __init__(self):
+        super().__init__()
+
+        self.title("AutoClicker")
+        self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
+
+        self.p1 = ImageTk.PhotoImage(file=resource("../Assets/icon.ico"))
+        self.wm_iconbitmap()
+        self.iconphoto(False, self.p1)
+
+        self.tabview = customtkinter.CTkTabview(master=self)
+        self.tab1 = self.tabview.add("AutoClicker")
+        self.tab2 = self.tabview.add("MoveIt")
+        self.tabview.pack(pady=10)
+
+        #
+        #   Setting AutoClicker Tab
+        #
+
+        self.setupAutoclicker()
+
+        #
+        #   Setting MoveIt Tab
+        #
+
+        self.setupMoveit()
 
     def buttonmenu_event(self, choice5):
         global button1
@@ -222,63 +268,85 @@ class App(customtkinter.CTk):
             repeattype = 1
 
     def start_button(self):
-        if (
-            clicktype == "Single"
-            or clicktype == "Double"
-            or clicktype == "Triple"
-            and not self.pause
-        ):
-            self.lis2.stop()
-            self.pause = False
-
-            self.autoclc = threading.Thread(target=self.autoClick)
-            self.autoclc.start()
-
-            self.buttonmenu.configure(state="normal")
-            self.buttonmenu.configure(state="disabled")
-            self.start_auto_button.configure(state="disabled")
-            self.stop_auto_button.configure(state="enabled")
-        else:
-            if not self.pause:
+        if self.tabview.get() == "AutoClicker":
+            if (
+                clicktype == "Single"
+                or clicktype == "Double"
+                or clicktype == "Triple"
+                and not self.pause
+            ):
                 self.lis2.stop()
                 self.pause = False
 
-                self.autohol = threading.Thread(target=self.autoHold)
-                self.autohol.start()
+                self.autoclc = threading.Thread(target=self.autoClick)
+                self.autoclc.start()
 
                 self.buttonmenu.configure(state="normal")
                 self.buttonmenu.configure(state="disabled")
                 self.start_auto_button.configure(state="disabled")
                 self.stop_auto_button.configure(state="enabled")
+            else:
+                if not self.pause:
+                    self.lis2.stop()
+                    self.pause = False
+
+                    self.autohol = threading.Thread(target=self.autoHold)
+                    self.autohol.start()
+
+                    self.buttonmenu.configure(state="normal")
+                    self.buttonmenu.configure(state="disabled")
+                    self.start_auto_button.configure(state="disabled")
+                    self.stop_auto_button.configure(state="enabled")
+        elif self.tabview.get() == "MoveIt":
+            if not self.pause:
+                self.autoMove = threading.Thread(target=self.autoMove_fn)
+                self.autoMove.start()
+
+                self.slider.configure(state="disabled")
+                self.start_move.configure(state="disabled")
+                self.stop_move.configure(state="enabled")
 
     def on_press1(self, key):
-        if not self.auto1 and key == autoclick_key:
-            self.pause = False
-            self.auto1 = True
-            self.auto = False
-            self.lis2.stop()
-            self.start_button()
+        if self.tabview.get() == "AutoClicker":
+            if not self.auto1 and key == autoclick_key:
+                self.pause = False
+                self.auto1 = True
+                self.auto = False
+                self.lis2.stop()
+                self.start_button()
 
-        if not self.auto and key == holdm_key:
-            self.pause = False
-            self.lis2.stop()
-            self.start_button()
-            self.auto1 = True
+            if not self.auto and key == holdm_key:
+                self.pause = False
+                self.lis2.stop()
+                self.start_button()
+                self.auto1 = True
+        elif self.tabview.get() == "MoveIt":
+            if key == autoclick_key:
+                self.pause = False
+                self.lis2.stop()
+                self.start_button()
 
     def on_press(self, key):
-        if self.auto1 and key == autoclick_key:
-            self.pause = True
-            self.auto1 = False
-            self.stop_button()
-            self.lis2 = keyboard.Listener(on_press=self.on_press1)
-            self.lis2.start()
+        if self.tabview.get() == "AutoClicker":
+            if self.auto1 and key == autoclick_key:
+                self.pause = True
+                self.auto1 = False
+                self.stop_button()
+                self.lis2 = keyboard.Listener(on_press=self.on_press1)
+                self.lis2.start()
 
-        if self.auto and key == holdm_key:
-            self.pause = True
-            self.auto = False
-            self.stop_button()
-            self.lis2 = keyboard.Listener(on_press=self.on_press1)
-            self.lis2.start()
+            if self.auto and key == holdm_key:
+                self.pause = True
+                self.auto = False
+                self.stop_button()
+                self.lis2 = keyboard.Listener(on_press=self.on_press1)
+                self.lis2.start()
+        elif self.tabview.get() == "MoveIt":
+            if key == autoclick_key:
+                self.pause = True
+                self.stop_button()
+                self.lis2 = keyboard.Listener(on_press=self.on_press1)
+                self.lis2.start()
 
     def autoHold(self):
         self.auto = True
@@ -420,64 +488,97 @@ class App(customtkinter.CTk):
                     break
                 lis1.stop()
 
+    def autoMove_fnR(self, steps, step_x, step_y):
+        current_x, current_y = pydirectinput.position()
+        for _ in range(steps):
+            if not self.pause:
+                current_x += step_x
+                current_y += step_y
+                pydirectinput.moveTo(int(current_x), int(current_y))
+                sleep(0.1)
+            else:
+                return
+
+    def autoMove_fn(self):
+        i = 0
+        self.lis1 = Listener(on_press=self.on_press)
+        self.lis1.start()
+
+        while not self.pause:
+            i = (i+1)%2
+            if not self.pause:
+                moveby = self.sliderVar.get()
+                current_x, current_y = pydirectinput.position()
+                target_x, target_y = current_x + ((-1)**i)*moveby, current_y + ((-1)**i)*moveby
+                pydirectinput.moveTo(int(target_x), int(target_y))
+            else:
+                break
+        if self.pause:
+            self.stop_button()
+            self.lis1.stop()
+        return
+        
     def stop_button(self):
         self.pause = True
+        if self.tabview.get() == "AutoClicker":
+            if clicktype == "Single":
+                if button1 == "Left":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="left")
+                elif button1 == "Middle":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="middle")
+                elif button1 == "Right":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="right")
 
-        if clicktype == "Single":
-            if button1 == "Left":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="left")
-            elif button1 == "Middle":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="middle")
-            elif button1 == "Right":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="right")
+            if clicktype == "Double":
+                if button1 == "Left":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="left")
+                elif button1 == "Middle":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="middle")
+                elif button1 == "Right":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="right")
 
-        if clicktype == "Double":
-            if button1 == "Left":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="left")
-            elif button1 == "Middle":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="middle")
-            elif button1 == "Right":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="right")
+            if clicktype == "Triple":
+                if button1 == "Left":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="left")
+                elif button1 == "Middle":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="middle")
+                elif button1 == "Right":
+                    self.auto1 = False
+                    pydirectinput.mouseUp(button="right")
 
-        if clicktype == "Triple":
-            if button1 == "Left":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="left")
-            elif button1 == "Middle":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="middle")
-            elif button1 == "Right":
-                self.auto1 = False
-                pydirectinput.mouseUp(button="right")
+            if clicktype == "Hold":
+                if button1 == "Left":
+                    self.auto = False
+                    pydirectinput.mouseUp(button="left")
+                elif button1 == "Middle":
+                    self.auto = False
+                    pydirectinput.mouseUp(button="middle")
+                elif button1 == "Right":
+                    self.auto = False
+                    pydirectinput.mouseUp(button="right")
+                else:
+                    pydirectinput.keyUp(button=self.buttonmenu.get().lower())
 
-        if clicktype == "Hold":
-            if button1 == "Left":
-                self.auto = False
-                pydirectinput.mouseUp(button="left")
-            elif button1 == "Middle":
-                self.auto = False
-                pydirectinput.mouseUp(button="middle")
-            elif button1 == "Right":
-                self.auto = False
-                pydirectinput.mouseUp(button="right")
-            else:
-                pydirectinput.keyUp(button=self.buttonmenu.get().lower())
+            self.buttonmenu.configure(state="normal")
+            self.start_auto_button.configure(state="enabled")
+            self.stop_auto_button.configure(state="disabled")
 
-        self.buttonmenu.configure(state="normal")
-        self.start_auto_button.configure(state="enabled")
-        self.stop_auto_button.configure(state="disabled")
+        elif self.tabview.get() == "MoveIt":
+            self.slider.configure(state="normal")
+            self.start_move.configure(state="normal")
+            self.stop_move.configure(state="disabled")
 
     def on_close(self, event=0):
         self.destroy()
 
-    def start(self):
-        self.mainloop()
 
 
 if __name__ == "__main__":
