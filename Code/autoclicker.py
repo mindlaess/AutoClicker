@@ -202,9 +202,9 @@ class App(customtkinter.CTk):
         self.title("AutoClicker")
         self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
 
-        self.p1 = ImageTk.PhotoImage(file=resource("../Assets/icon.ico"))
-        self.wm_iconbitmap()
-        self.iconphoto(False, self.p1)
+        # self.p1 = ImageTk.PhotoImage(file=resource("../Assets/icon.ico"))
+        # self.wm_iconbitmap()
+        # self.iconphoto(False, self.p1)
 
         self.tabview = customtkinter.CTkTabview(master=self)
         self.tab1 = self.tabview.add("AutoClicker")
