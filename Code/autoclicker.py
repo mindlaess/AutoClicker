@@ -173,14 +173,16 @@ class App(customtkinter.CTk):
         self.sliderVar = customtkinter.IntVar(master=self.tab2, value=50)
         self.slider = customtkinter.CTkSlider(master=self.tab2, from_=0, to=100, variable=self.sliderVar)
         self.slider.pack(pady=(10,0))
-        customtkinter.CTkLabel(master=self.tab2, textvariable=self.sliderVar).pack()
+        customtkinter.CTkLabel(master=self.tab2, textvariable=self.sliderVar, font=("Roboto Medium", -16)).pack()
+
+        customtkinter.CTkLabel(master=self.tab2, text=f"Press '{autoclick_key.name.upper()}' to start/stop moving", font=("Roboto Medium", -14)).pack(pady=20)
 
         self.start_move = customtkinter.CTkButton(
             master=self.tab2,
             text="Start",
             fg_color=("black"),
             font=("Roboto Medium", -16),
-            command=self.start_move_fn,
+            command=self.start_button,
         )
         self.start_move.pack(pady=(150,0))
 
@@ -190,19 +192,9 @@ class App(customtkinter.CTk):
             fg_color=("black"),
             font=("Roboto Medium", -16),
             state="disabled",
-            command=self.stop_move_fn,
+            command=self.stop_button,
         )
         self.stop_move.pack(pady=(10,10))
-
-        # self.lismove = keyboard.Listener(on_press=self.on_press1)
-        # self.lismove.start()
-
-    def start_move_fn(self):
-
-        return
-
-    def stop_move_fn(self):
-        return
 
     def __init__(self):
         super().__init__()
@@ -268,7 +260,8 @@ class App(customtkinter.CTk):
             repeattype = 1
 
     def start_button(self):
-        if self.tabview.get() == "AutoClicker":
+        self.pause = False
+        if self.tabview.get() == "AutoClicker" and not self.pause:
             if (
                 clicktype == "Single"
                 or clicktype == "Double"
@@ -297,8 +290,10 @@ class App(customtkinter.CTk):
                     self.buttonmenu.configure(state="disabled")
                     self.start_auto_button.configure(state="disabled")
                     self.stop_auto_button.configure(state="enabled")
-        elif self.tabview.get() == "MoveIt":
+        else:
             if not self.pause:
+                self.lis2.stop()
+                self.pause = False
                 self.autoMove = threading.Thread(target=self.autoMove_fn)
                 self.autoMove.start()
 
@@ -488,29 +483,20 @@ class App(customtkinter.CTk):
                     break
                 lis1.stop()
 
-    def autoMove_fnR(self, steps, step_x, step_y):
-        current_x, current_y = pydirectinput.position()
-        for _ in range(steps):
-            if not self.pause:
-                current_x += step_x
-                current_y += step_y
-                pydirectinput.moveTo(int(current_x), int(current_y))
-                sleep(0.1)
-            else:
-                return
-
     def autoMove_fn(self):
         i = 0
         self.lis1 = Listener(on_press=self.on_press)
         self.lis1.start()
+        self.pause = False
 
-        while not self.pause:
+        while True:
             i = (i+1)%2
             if not self.pause:
                 moveby = self.sliderVar.get()
                 current_x, current_y = pydirectinput.position()
                 target_x, target_y = current_x + ((-1)**i)*moveby, current_y + ((-1)**i)*moveby
                 pydirectinput.moveTo(int(target_x), int(target_y))
+                sleep(0.1)
             else:
                 break
         if self.pause:
